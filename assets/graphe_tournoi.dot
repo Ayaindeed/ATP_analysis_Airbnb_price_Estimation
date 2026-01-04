@@ -1,0 +1,123 @@
+
+digraph Tournament {
+  rankdir=TB;
+  bgcolor="white";
+  splines=true;
+  nodesep=0.6;
+  ranksep=0.8;
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="#1E88E5",
+    fontcolor="white",
+    fontname="Arial",
+    fontsize=11
+  ];
+
+  edge [
+    fontname="Arial",
+    fontsize=9,
+    color="#424242",
+    arrowsize=0.8
+  ];
+
+  5 [label="Tomas Berdych\nCZE"];
+  1 [label="Novak Djokovic\nSRB"];
+  17 [label="Rafael Nadal\nESP"];
+  7 [label="Kei Nishikori\nJPN"];
+  3 [label="Roger Federer\nSUI"];
+  11 [label="Andy Murray\nGBR"];
+  19 [label="David Ferrer\nESP"];
+  15 [label="Stan Wawrinka\nSUI"];
+  1 -> 5 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  1 -> 7 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  3 -> 1 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  3 -> 5 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  3 -> 7 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  7 -> 5 [
+    label="G1 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  11 -> 19 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  15 -> 11 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  15 -> 19 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  17 -> 11 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  17 -> 15 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  3 -> 15 [
+    label="S (5 pts)",
+    color="#F57C00",
+    penwidth=2
+  ];
+
+  17 -> 19 [
+    label="G2 (1 pts)",
+    color="#388E3C",
+    penwidth=1
+  ];
+
+  1 -> 3 [
+    label="F (11 pts)",
+    color="#D32F2F",
+    penwidth=3
+  ];
+
+  1 -> 17 [
+    label="S (5 pts)",
+    color="#F57C00",
+    penwidth=2
+  ];
+
+}
