@@ -76,7 +76,7 @@ pj_spark/
 
 4. **Modèles pour comparaison** :
    - **Random Forest Regressor** : Capte bien les interactions, robuste aux outliers
-   - **Linear Regression** : Baseline rapide et efficace pour petit dataset, avec régularisation (Ridge/Lasso)
+   - **Linear Regression** : Résultats catastrophiques / non utilisé
 
 5. **Validation** : Cross-Validation 5-fold
 6. **Hyperparamètres optimisés** :
@@ -85,7 +85,7 @@ pj_spark/
    - `numTrees`: [50, 100, 150]
    - `maxDepth`: [5, 10, 15]
    - `minInstancesPerNode`: [1, 5]
-   - **Total**: 18 combinaisons
+   - **Total**: 18 combinaisons (nous aurions pu utiliser 18/16 combinaisons mais nous en explorons 36 pour l'instant)
    
 
 7. **Métriques d'évaluation** : RMSE, R², MAE
