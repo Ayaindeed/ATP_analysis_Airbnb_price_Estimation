@@ -17,6 +17,9 @@ lazy val root = (project in file("."))
       // Spark SQL
       "org.apache.spark" %% "spark-sql" % "3.2.4",
 
+      // Spark MLlib
+      "org.apache.spark" %% "spark-mllib" % "3.2.4",
+
       // Spark GraphX
       "org.apache.spark" %% "spark-graphx" % "3.2.4",
 
