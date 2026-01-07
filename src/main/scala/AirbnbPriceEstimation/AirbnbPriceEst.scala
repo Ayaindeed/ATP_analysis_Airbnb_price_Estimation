@@ -34,6 +34,16 @@ object AirbnbPriceEst {
 
     println("\n Schéma :")
     dfPrepare.printSchema()
+
+    // Stats Prix après filtrage des outliers
+    println("\n Stats Prix (après filtrage outliers 10-1000$):")
+    dfPrepare.select(
+      min(exp(col("label"))).alias("prix_min"),
+      max(exp(col("label"))).alias("prix_max"),
+      avg(exp(col("label"))).alias("prix_moyen"),
+      stddev(exp(col("label"))).alias("prix_ecart_type")
+    ).show()
+
     // Split train/test
     val Array(trainData, testData) = splitData(dfPrepare)
 
@@ -117,30 +127,37 @@ object AirbnbPriceEst {
     // Concatenation host_id et id
     val df1 = df.withColumn("id", concat_ws("_", col("host_id"), col("id")))
 
-    // Trans number_of_reviews en int
-    val df2 = df1.withColumn("number_of_reviews", col("number_of_reviews").cast(IntegerType))
+    // Trans number_of_reviews en int (remplacer nulls par 0)
+    val df2 = df1.withColumn("number_of_reviews",
+      when(col("number_of_reviews").isNull, 0).otherwise(col("number_of_reviews").cast(IntegerType)))
 
-    // Trans reviews_per_month en double
-    val df3 = df2.withColumn("reviews_per_month", col("reviews_per_month").cast(DoubleType))
+    // Trans reviews_per_month en double (remplacer nulls par 0.0)
+    val df3 = df2.withColumn("reviews_per_month",
+      when(col("reviews_per_month").isNull, 0.0).otherwise(col("reviews_per_month").cast(DoubleType)))
 
     // Trans price en double (nettoyage si caractères spéciaux)
     val df4 = df3.withColumn("price",
       regexp_replace(col("price"), "[^0-9.]", "").cast(DoubleType))
+      .filter(col("price").isNotNull)
 
-    // Filtrer les prix <= 0 avant log transformation
-    val df4b = df4.filter(col("price") > 0)
+    // FILTRAGE DES OUTLIERS: Garder prix entre 10 et 1000
+    val df4b = df4.filter(col("price") >= 10 && col("price") <= 1000)
 
     // Appliquer log transformation au prix pour améliorer la distribution
     val df5 = df4b.withColumn("label", log(col("price")))
       .drop("price")
 
-    // Cast numeric columns to DoubleType
+    // Cast numeric columns to DoubleType avec gestion des nulls
     val df5b = df5
-      .withColumn("latitude", col("latitude").cast(DoubleType))
-      .withColumn("longitude", col("longitude").cast(DoubleType))
+      .withColumn("latitude", 
+        when(col("latitude").isNull, 0.0).otherwise(col("latitude").cast(DoubleType)))
+      .withColumn("longitude", 
+        when(col("longitude").isNull, 0.0).otherwise(col("longitude").cast(DoubleType)))
       .withColumn("minimum_nights", col("minimum_nights").cast(DoubleType))
-      .withColumn("calculated_host_listings_count", col("calculated_host_listings_count").cast(DoubleType))
-      .withColumn("availability_365", col("availability_365").cast(DoubleType))
+      .withColumn("calculated_host_listings_count", 
+        when(col("calculated_host_listings_count").isNull, 1).otherwise(col("calculated_host_listings_count").cast(DoubleType)))
+      .withColumn("availability_365", 
+        when(col("availability_365").isNull, 0).otherwise(col("availability_365").cast(DoubleType)))
 
     // Feature engineering: créer features additionnelles
     val df5c = df5b
@@ -236,9 +253,9 @@ object AirbnbPriceEst {
 
     val rf = pipeline.getStages.last.asInstanceOf[RandomForestRegressor]
     val paramGrid = new ParamGridBuilder()
-      .addGrid(rf.numTrees, Array(50))
-      .addGrid(rf.maxDepth, Array(12, 15, 18))
-      .addGrid(rf.minInstancesPerNode, Array(1, 3, 5))
+      .addGrid(rf.numTrees, Array(50, 100, 150))
+      .addGrid(rf.maxDepth, Array(5, 10, 15))
+      .addGrid(rf.minInstancesPerNode, Array(1, 5))
       .addGrid(rf.maxBins, Array(32, 64))
       .build()
 
