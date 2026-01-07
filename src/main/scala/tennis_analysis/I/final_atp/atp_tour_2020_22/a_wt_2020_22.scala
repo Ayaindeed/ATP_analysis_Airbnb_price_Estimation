@@ -47,8 +47,8 @@ object a_wt_2020_22 {
     analyzeGraphStatistics(graph)
 
     // Q3 : Résultats d'un tournoi
-    println("\n Résultats du tournoi wimbledon")
-    q3_tournament_results.TournResultst(graph, "wimbledon", 2022)
+    println("\n Résultats du tournoi nitto-atp-finals")
+    q3_tournament_results.TournResultst(graph, "nitto-atp-finals", 2020)
 
     // Q4-5-6 : Analyse ATP Finals 2020
     println("\n Q4-5-6 : Analayse ATP Finals 2020")

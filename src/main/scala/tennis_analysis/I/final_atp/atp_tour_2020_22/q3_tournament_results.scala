@@ -32,9 +32,6 @@ object q3_tournament_results {
     val verticesMap = graph.vertices.select(col("id"), col("fullName")).collect()
       .map(row => (row.getAs[String](0), row.getAs[String](1))).toMap
     
-    // ensemble mutable pour stocker les IDs des joueurs manquants
-    val missingIds = scala.collection.mutable.Set[String]()
-    
     // Boucle sur chaque match et affiche ses infos
     results.collect().foreach { row =>
       val yr = row.getAs[Int]("year")
@@ -43,17 +40,9 @@ object q3_tournament_results {
       val src = row.getAs[String]("src")
       val dst = row.getAs[String]("dst")
       val score = row.getAs[String]("matchScore")
-      val winner = verticesMap.getOrElse(src, { missingIds += src; "Missing" })
-      val loser = verticesMap.getOrElse(dst, { missingIds += dst; "Missing" })
+      val winner = verticesMap(src)
+      val loser = verticesMap(dst)
       println(f"$yr | $roundOrder%10d | $round%-14s | $winner%-28s | $loser%-28s | $score")
-    }
-    
-    // Si des IDs de joueurs sont manquants, affiche un msg
-    if (missingIds.nonEmpty) {
-      // nbr d'IDs manquants
-      println(s"WARNING: ${missingIds.size} player IDs not found in players.csv")
-      // liste des IDs manquants
-      println(s"Missing IDs: ${missingIds.toList.sorted.mkString(", ")}")
     }
   }
 }

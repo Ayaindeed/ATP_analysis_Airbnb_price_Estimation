@@ -236,9 +236,9 @@ object AirbnbPriceEst {
 
     val rf = pipeline.getStages.last.asInstanceOf[RandomForestRegressor]
     val paramGrid = new ParamGridBuilder()
-      .addGrid(rf.numTrees, Array(100, 150, 200))
-      .addGrid(rf.maxDepth, Array(8, 10, 12))
-      .addGrid(rf.minInstancesPerNode, Array(5, 10))
+      .addGrid(rf.numTrees, Array(50))
+      .addGrid(rf.maxDepth, Array(12, 15, 18))
+      .addGrid(rf.minInstancesPerNode, Array(1, 3, 5))
       .addGrid(rf.maxBins, Array(32, 64))
       .build()
 
