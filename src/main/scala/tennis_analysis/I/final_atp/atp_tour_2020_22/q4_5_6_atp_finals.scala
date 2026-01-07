@@ -69,24 +69,28 @@ object q4_5_6_atp_finals {
     // Crée le sous-graphe des ATP Finals pour nitto-atp-finals 2020
     val atpFinalsGraph = createATPFinalSubgraph(graph)
     
-    // Compte le nombre de joueurs et de matchs dans le sous-graphe
-//    val playerCount = atpFinalsGraph.vertices.count()
-//    val matchCount = atpFinalsGraph.edges.count()
-//    // Affiche les statistiques du sous-graphe
-//    println(s"\nSous-graphe nitto-atp-finals 2020 : $playerCount joueurs, $matchCount matches")
-//
-    // Q5 : Détecte les joueurs de phase de groupe
-    // 4j / grp
-    val groupPlayers = atpFinalsGraph.vertices
-      .join(atpFinalsGraph.edges.select(col("src").alias("id")).union(atpFinalsGraph.edges.select(col("dst").alias("id"))).distinct(), "id")
+    // Récupère les matchs de la phase de groupe (Round Robin)
+    val groupMatches = atpFinalsGraph.edges
+      .filter(col("round").startsWith("Round Robin"))
+    
+    println(s"\nQ5 - Détection des groupes (Phase de groupe - Round Robin)")
+    println(s"Nombre de matchs en phase de groupe: ${groupMatches.count()}")
+    
+    // Récupère tous les joueurs impliqués dans la phase de groupe
+    val groupPlayers = groupMatches
+      .select(col("src").alias("id"))
+      .union(groupMatches.select(col("dst").alias("id")))
+      .distinct()
+      .join(atpFinalsGraph.vertices, "id")
       .select(col("id"), col("fullName"), col("nationality"))
     
-    // Trie et divise en deux groupes de 4 joueurs chacun
-    val allGroupPlayers = groupPlayers.orderBy(col("id")).collect()
-    val groupA = allGroupPlayers.slice(0, 4)
-    val groupB = allGroupPlayers.slice(4, 8)
+    val allPlayers = groupPlayers.collect()
     
-    println(s"\nQ5 - Détection des 2 groupes (nitto-atp-finals 2020)")
+    // Identifie les deux groupes en fonction des joueurs impliqués dans chaque groupe
+    // On utilise une approche simple : les 4 premiers joueurs = Groupe A, les 4 suivants = Groupe B
+    val groupA = allPlayers.slice(0, 4)
+    val groupB = allPlayers.slice(4, 8)
+    
     println("\nGroupe A :")
     groupA.foreach { row =>
       val name = row.getAs[String]("fullName")
@@ -101,8 +105,8 @@ object q4_5_6_atp_finals {
       println(s"  - $name ($nationality)")
     }
     
-    // Q6 : Calcule le nombre de victoires pour chaque joueur
-    val playerWins = atpFinalsGraph.edges
+    // Q6 : Calcule le nombre de victoires pour chaque joueur en phase de groupe
+    val playerGroupWins = groupMatches
       .select(col("src").alias("id"))
       .groupBy("id")
       .count()
@@ -111,18 +115,19 @@ object q4_5_6_atp_finals {
     // Fonction helper pour afficher les 2 joueurs qualifiés d'un groupe
     def showQualifiedPlayers(group: Array[org.apache.spark.sql.Row], groupName: String): Unit = {
       val groupIds = group.map(_.getAs[String]("id")).toList
-      val groupIdsDF = groupPlayers.filter(col("id").isin(groupIds: _*))
       
-      val qualified = groupIdsDF
-        .join(playerWins, "id")
+      val qualified = groupPlayers
+        .filter(col("id").isin(groupIds: _*))
+        .join(playerGroupWins, "id")
         .orderBy(col("wins").desc)
         .limit(2)
       
-      println(s"\nGroupe $groupName - 2 joueurs qualifiés (par victoires) :")
+      println(s"\nGroupe $groupName - 2 joueurs qualifiés (par nombre de victoires) :")
       qualified.collect().foreach { row =>
         val name = row.getAs[String]("fullName")
+        val nat = row.getAs[String]("nationality")
         val wins = row.getAs[Long]("wins")
-        println(s"  $name : $wins victoire(s)")
+        println(f"  - $name%-30s ($nat%-3s) : $wins victoire(s)")
       }
     }
     

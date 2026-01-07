@@ -60,12 +60,11 @@ object a_wt_2020_22 {
     val tPath = "Datasets/tournaments_2020-2022.csv"
     val tournamentsDF = createTournamentsDF(spark, tPath)
 
-    println("Q7-8 : Tournois importants")
     val importantTournamentsGraph = q7_8_important_tournaments.createImportantTournamentsSubgraph(graph, tournamentsDF)
-    println(s"Sous-graphe créé : ${importantTournamentsGraph.vertices.count()} joueurs, ${importantTournamentsGraph.edges.count()} matches")
+    println(s"\nSous-graphe créé : ${importantTournamentsGraph.vertices.count()} joueurs, ${importantTournamentsGraph.edges.count()} matches")
 
     // Affiche les deux alternatives de classement Q8
-    q7_8_important_tournaments.displayTop10PlayersAlternative1(importantTournamentsGraph)
+    q7_8_important_tournaments.displayTop10PlayersAlternative1(importantTournamentsGraph, tournamentsDF)
     q7_8_important_tournaments.displayTop10PlayersAlternative2(importantTournamentsGraph, tournamentsDF)
 
     spark.stop()
@@ -214,9 +213,10 @@ object a_wt_2020_22 {
       .select(
         col("tourn_id"),
         col("tourn_name"),
-        col("tourn_type").alias("tourn_category"),
+        col("tourn_type"),
         col("tourn_start_year"),
-        col("winner_id")
+        col("winner_id"),
+        col("tourn_winner")
       )
   }
 
